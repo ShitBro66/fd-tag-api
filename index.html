@@ -1,89 +1,149 @@
-﻿<!doctype html><html lang="zh-CN"><head><meta charset="utf-8" /><title>标签与图片接口文档汇总</title><style>
-:root{--text:#202124;--muted:#667085;--line:#d8dee9;--bg:#f6f8fb;--card:#fff;--accent:#e65a1d}*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.6}header{padding:28px 36px;background:#111318;color:#fff}header h1{margin:0 0 8px;font-size:28px}header p{margin:0;color:#d0d5dd}main{max-width:1280px;margin:0 auto;padding:24px 28px 60px}section{margin:0 0 22px}.api-card,.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.04)}h2{margin:0 0 8px;font-size:20px}h3{margin:18px 0 8px;font-size:15px;color:#344054}.subline,.muted{color:var(--muted);font-size:13px}.endpoint{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#fff7f3;border:1px solid #ffd8c7;border-radius:6px;margin:12px 0;overflow-x:auto}.method{min-width:54px;text-align:center;padding:2px 8px;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:12px}code{font-family:Consolas,Monaco,monospace;color:#b42318}table{width:100%;border-collapse:collapse;margin:8px 0 12px;background:#fff}th,td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}th{background:#f2f4f7;font-weight:600}pre{white-space:pre-wrap;word-break:break-word;max-height:520px;overflow:auto;margin:8px 0 0;padding:12px;background:#0f172a;color:#e5e7eb;border-radius:6px;font-size:12px}a{color:#1a73e8;text-decoration:none}a:hover{text-decoration:underline}ol{padding-left:22px}li{margin:6px 0}@media(max-width:800px){main{padding:16px}.endpoint{align-items:flex-start;flex-direction:column}}
-</style></head><body><header><h1>标签与图片接口文档汇总</h1><p>来源：ShowDoc 页面接口；整理时间：2026-06-29。token 示例已省略。</p></header><main>
-<section class="panel"><h2>接口总览</h2><table><thead><tr><th>文档</th><th>方法</th><th>接口路径</th><th>ShowDoc 标题</th></tr></thead><tbody><tr><td><a href="#api-0">标签新增/编辑/删除</a></td><td>POST</td><td><code>/marketingTag/marketingTagUpdate</code></td><td>标签增删改</td></tr>
-<tr><td><a href="#api-1">一级标签详情</a></td><td>GET</td><td><code>/marketingTag/getTagById</code></td><td>一级标签详情</td></tr>
-<tr><td><a href="#api-2">标签树</a></td><td>GET</td><td><code>/marketingTag/tagTree</code></td><td>标签树</td></tr>
-<tr><td><a href="#api-3">标签筛选</a></td><td>GET</td><td><code>/marketingTag/searchTags</code></td><td>关键字筛选标签</td></tr>
-<tr><td><a href="#api-4">图片新增/编辑/删除</a></td><td>POST</td><td><code>/marketingTag/imageUpdate</code></td><td>图片增删改，tagIds 传二级标签 id</td></tr>
-<tr><td><a href="#api-5">单图片详情</a></td><td>GET</td><td><code>/marketingTag/getImageById</code></td><td>图片详情</td></tr>
-<tr><td><a href="#api-6">图片列表</a></td><td>POST</td><td><code>/marketingTag/imageList</code></td><td>图片列表</td></tr></tbody></table></section>
-<section class="panel"><h2>管理页使用点分析</h2><table><thead><tr><th>管理页位置/动作</th><th>建议接口</th><th>说明</th></tr></thead><tbody><tr><td>打开标签管理页、刷新标签选择器</td><td><code>GET /marketingTag/tagTree</code></td><td>返回一二级标签树；一级标签包含启用状态，二级标签用于图片绑定。</td></tr>
-<tr><td>新增/编辑标签</td><td><code>POST /marketingTag/marketingTagUpdate</code></td><td>一级标签 parentId=0；二级标签 parentId 传一级标签 id。ShowDoc 示例只列出新增字段，编辑/删除字段仍需后端确认。</td></tr>
-<tr><td>查看一级标签编辑回显</td><td><code>GET /marketingTag/getTagById</code></td><td>按 id 获取一级标签详情，返回 tagName、isEnable、sort、language、tagNameTrans。</td></tr>
-<tr><td>输入关键字查找标签</td><td><code>GET /marketingTag/searchTags</code></td><td>按 keyword 返回匹配标签列表，示例结果为二级标签。</td></tr>
-<tr><td>新增/编辑图片并绑定标签</td><td><code>POST /marketingTag/imageUpdate</code></td><td>tagIds 传二级标签 id 数组；图片字段包含 fullImageUrl、thumbnailUrl。</td></tr>
-<tr><td>图片编辑回显</td><td><code>GET /marketingTag/getImageById</code></td><td>返回图片 URL、tagIds 和 tagList，可直接回显已选标签。</td></tr>
-<tr><td>图片列表/按标签筛选图片</td><td><code>POST /marketingTag/imageList</code></td><td>tagId 为空时展示时间靠前的 20 张图片；传二级标签 id 时按标签筛选。</td></tr></tbody></table></section>
-<section class="panel"><h2>仍需确认的问题</h2><ol><li><code>marketingTagUpdate</code> 标题为“增删改”，但 ShowDoc 请求体只给出新增字段；编辑是否传 <code>id</code>、删除是否传 <code>isDel</code> 仍需确认。</li><li><code>imageUpdate</code> 标题为“增删改”，但 ShowDoc 请求体只给出图片 URL 与 <code>tagIds</code>；编辑/删除字段仍需确认。</li><li><code>searchTags</code> 的 ShowDoc 示例把 token 同时放在 header 与 formdata；按现有项目约定建议只走统一 header token。</li></ol></section>
-<section class="api-card" id="api-0">
-<h2>1. 标签新增/编辑/删除</h2>
-<div class="subline">ShowDoc 标题：标签增删改 · <a href="http://47.112.98.200:4999/web/#/p/8f41d91d330181b5053c61f66abad6db" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/marketingTagUpdate</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td></td></tr></tbody></table>
-<h3>Query 参数</h3><p class="muted">无</p>
-<h3>JSON Body 字段</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>parentId</td><td>是</td><td>number</td><td>0</td><td>一级标签传 0；二级标签传一级标签 id。</td></tr>
-<tr><td>tagName</td><td>是</td><td>string</td><td>产品类型</td><td>标签中文名。</td></tr>
-<tr><td>isEnable</td><td>是</td><td>number</td><td>1</td><td>新增二级标签时不需要这个字段值。</td></tr>
-<tr><td>sort</td><td>是</td><td>number</td><td>1</td><td>排序。</td></tr>
-<tr><td>language</td><td>是</td><td>string</td><td>en-us</td><td>语言。</td></tr>
-<tr><td>tagNameTrans</td><td>是</td><td>string</td><td>Product Type</td><td>标签翻译名。</td></tr></tbody></table>
-<h3>请求示例</h3><pre>{
-  "parentId": 0,
-  "tagName": "产品类型",
-  "isEnable": 1,
-  "sort": 1,
-  "language": "en-us",
-  "tagNameTrans": "Product Type"
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>标签与图片接口文档汇总</title>
+  <style>
+    :root{--text:#202124;--muted:#667085;--line:#d8dee9;--bg:#f6f8fb;--card:#fff;--accent:#e65a1d;--changed:#d4380d;--changed-bg:#fff7e6}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",Arial,sans-serif;color:var(--text);background:var(--bg);line-height:1.6}
+    header{padding:28px 36px;background:#111318;color:#fff}
+    header h1{margin:0 0 8px;font-size:28px}
+    header p{margin:0;color:#d0d5dd}
+    main{max-width:1280px;margin:0 auto;padding:24px 28px 60px}
+    section{margin:0 0 22px}
+    .api-card,.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:20px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+    h2{margin:0 0 8px;font-size:20px}
+    h3{margin:18px 0 8px;font-size:15px;color:#344054}
+    .subline,.muted{color:var(--muted);font-size:13px}
+    .endpoint{display:flex;gap:10px;align-items:center;padding:10px 12px;background:#fff7f3;border:1px solid #ffd8c7;border-radius:6px;margin:12px 0;overflow-x:auto}
+    .method{min-width:54px;text-align:center;padding:2px 8px;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:12px;text-transform:uppercase}
+    code{font-family:Consolas,Monaco,monospace;color:#b42318}
+    table{width:100%;border-collapse:collapse;margin:8px 0 12px;background:#fff}
+    th,td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+    th{background:#f2f4f7;font-weight:600}
+    pre{white-space:pre-wrap;word-break:break-word;max-height:520px;overflow:auto;margin:8px 0 0;padding:12px;background:#0f172a;color:#e5e7eb;border-radius:6px;font-size:12px}
+    .changed{color:var(--changed);font-weight:700}
+    .changed-row td{background:var(--changed-bg)}
+    pre .changed{color:#ffb86c}
+    a{color:#1a73e8;text-decoration:none}
+    a:hover{text-decoration:underline}
+    @media(max-width:800px){main{padding:16px}.endpoint{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>标签与图片接口文档汇总</h1>
+  <p>来源：ShowDoc 页面接口；整理时间：<span class="changed">2026-07-01</span>。token 示例已省略。</p>
+</header>
+<main>
+  <section class="panel">
+    <h2>接口总览</h2>
+    <table>
+      <thead><tr><th>文档</th><th>方法</th><th>接口路径</th><th>ShowDoc 标题</th><th>职责</th></tr></thead>
+      <tbody>
+        <tr class="changed-row"><td><a href="#api-0">标签编辑</a></td><td>POST</td><td><code>/marketingTag/marketingTagUpdate</code></td><td>标签增删改</td><td>新增、编辑、删除一级/二级标签；删除同接口传 <code>id</code>、<code>isdel</code>。</td></tr>
+        <tr class="changed-row"><td><a href="#api-1">标签详情</a></td><td>GET</td><td><code>/marketingTag/getTagById</code></td><td>标签详情</td><td>按 id 获取标签编辑回显。</td></tr>
+        <tr class="changed-row"><td><a href="#api-2">标签树</a></td><td>GET</td><td><code>/marketingTag/tagTree</code></td><td>标签树</td><td>按国家代码获取一二级标签树。</td></tr>
+        <tr class="changed-row"><td><a href="#api-3">标签关键字筛选</a></td><td>GET</td><td><code>/marketingTag/searchTags</code></td><td>关键字筛选标签</td><td>按关键字和国家代码筛选标签。</td></tr>
+        <tr class="changed-row"><td><a href="#api-4">图片编辑</a></td><td>POST</td><td><code>/marketingTag/imageUpdate</code></td><td>图片增删改，tagIds 传二级标签 id</td><td>新增、编辑、删除图片并绑定二级标签。</td></tr>
+        <tr class="changed-row"><td><a href="#api-5">图片列表</a></td><td>POST</td><td><code>/marketingTag/imageList</code></td><td>图片列表</td><td>按二级标签查询图片列表，空参返回时间靠前的 20 张。</td></tr>
+        <tr class="changed-row"><td><a href="#api-6">单图片详情</a></td><td>GET</td><td><code>/marketingTag/getImageById</code></td><td>图片详情</td><td>按 id 获取图片编辑回显。</td></tr>
+        <tr><td><a href="#api-7">标签排序</a></td><td>POST</td><td><code>/marketingTag/updateTagSort</code></td><td>新接口</td><td>拖拽后批量保存标签排序。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h2>管理页使用点</h2>
+    <table>
+      <thead><tr><th>管理页动作</th><th>接口</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr class="changed-row"><td>打开页面、切换右上角国家</td><td><code>GET /marketingTag/tagTree</code>、<code>POST /marketingTag/imageList</code></td><td>标签树请求带当前国家代码 <code>countryCode</code>；图片列表只传 <code>tagId</code>。</td></tr>
+        <tr class="changed-row"><td>新增/编辑/删除标签</td><td><code>POST /marketingTag/marketingTagUpdate</code></td><td>新增/编辑提交 <code>countryCode</code>、<code>parentId</code>、<code>tagName</code>、<code>isEnable</code>；删除同接口传 <code>id</code> 和 <code>isdel=1</code>。</td></tr>
+        <tr class="changed-row"><td>编辑标签回显</td><td><code>GET /marketingTag/getTagById</code></td><td>请求带 <code>id</code>。</td></tr>
+        <tr class="changed-row"><td>标签关键字筛选</td><td><code>GET /marketingTag/searchTags</code></td><td>请求带 <code>keyword</code> 和 <code>countryCode</code>。</td></tr>
+        <tr><td>图片上传/编辑</td><td><code>POST /marketingTag/imageUpdate</code></td><td>tagIds 传二级标签 id 数组。</td></tr>
+        <tr class="changed-row"><td>图片编辑回显</td><td><code>GET /marketingTag/getImageById</code></td><td>请求带 <code>id</code>。</td></tr>
+        <tr><td>标签拖拽排序</td><td><code>POST /marketingTag/updateTagSort</code></td><td>拖拽结束后提交数组，每项包含 id、sort。</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="api-card" id="api-0">
+    <h2>1. <span class="changed">标签编辑</span></h2>
+    <div class="subline">ShowDoc 标题：标签增删改 · <a class="changed" href="http://47.112.98.200:4999/web/#/p/19d9968f986797a2875e2d429e14cb2d" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/marketingTagUpdate</code></div>
+    <p class="note">用于一级/二级标签新增、编辑、删除。删除时只传 id 和 isdel=1。</p>
+    <h3>JSON Body 字段</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>id</td><td>编辑/删除时是</td><td>number</td><td>2</td><td>标签 id；删除时作为删除目标 id。</td></tr>
+      <tr class="changed-row"><td>countryCode</td><td>是</td><td>string</td><td>us</td><td>国家代码。</td></tr>
+      <tr><td>parentId</td><td>是</td><td>number</td><td>0</td><td>一级标签传 0；二级标签传一级标签 id。</td></tr>
+      <tr><td>tagName</td><td>是</td><td>string</td><td>Christmas Sale</td><td>标签名。</td></tr>
+      <tr><td>isEnable</td><td>是</td><td>number</td><td>1</td><td>是否启用，二级标签不需要传值。</td></tr>
+      <tr><td>isdel</td><td>删除时是</td><td>number</td><td>1</td><td>删除标识；删除一级/二级标签时传 1。</td></tr>
+    </tbody></table>
+    <h3>请求示例</h3><pre>{
+  "id": 2,
+  "countryCode": "us",
+  "parentId": 1,
+  "tagName": "Christmas Sale",
+  "isEnable": null
 }</pre>
-<h3>返回示例</h3><pre>{
+    <h3>删除请求示例</h3><pre>{
+  "id": 2,
+  "isdel": 1
+}</pre>
+    <h3>返回示例</h3><pre>{
   "success": true,
   "code": 200,
   "data": true,
   "message": "success"
 }</pre>
-</section>
-<section class="api-card" id="api-1">
-<h2>2. 一级标签详情</h2>
-<div class="subline">ShowDoc 标题：一级标签详情 · <a href="http://47.112.98.200:4999/web/#/p/8583779ab78b31c3a159445463f14771" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/getTagById?id=1</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td></td></tr></tbody></table>
-<h3>Query 参数</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>id</td><td>是</td><td>string</td><td>1</td><td>一级标签 id。</td></tr></tbody></table>
-<h3>JSON Body 字段</h3><p class="muted">无</p>
+  </section>
 
-<h3>返回示例</h3><pre>{
+  <section class="api-card" id="api-1">
+    <h2>2. <span class="changed">标签详情</span></h2>
+    <div class="subline">ShowDoc 标题：<span class="changed">标签详情</span> · <a class="changed" href="http://47.112.98.200:4999/web/#/p/380e592e49476d99f0332fdf8a8c0332" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/getTagById?id=1</code></div>
+    <h3>Query 参数</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>id</td><td>是</td><td>string</td><td>1</td><td>标签 id。</td></tr>
+    </tbody></table>
+    <h3>返回示例</h3><pre>{
   "success": true,
   "code": 200,
   "data": {
     "id": 1,
     "parentId": 0,
-    "tagName": "产品类型",
+    "countryCode": "us",
+    "tagName": "Holiday",
     "isEnable": 1,
     "sort": 1,
-    "tagId": 1,
-    "language": "en-us",
-    "tagNameTrans": "Product Type",
     "isDel": null
   },
   "message": "success"
 }</pre>
-</section>
-<section class="api-card" id="api-2">
-<h2>3. 标签树</h2>
-<div class="subline">ShowDoc 标题：标签树 · <a href="http://47.112.98.200:4999/web/#/p/4c7eefb0f53b12eb5d8b9565a875b31b" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/tagTree</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td></td></tr></tbody></table>
-<h3>Query 参数</h3><p class="muted">无</p>
-<h3>JSON Body 字段</h3><p class="muted">无</p>
+  </section>
 
-<h3>返回示例</h3><pre>{
+  <section class="api-card" id="api-2">
+    <h2>3. <span class="changed">标签树</span></h2>
+    <div class="subline">ShowDoc 标题：标签树 · <a class="changed" href="http://47.112.98.200:4999/web/#/p/55859cfca9fb516038e603c118248737" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/tagTree?countryCode=us</code></div>
+    <h3>Query 参数</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>countryCode</td><td>是</td><td>string</td><td>us</td><td>国家代码。</td></tr>
+    </tbody></table>
+    <h3>返回示例</h3><pre>{
   "success": true,
   "code": 200,
   "data": [
     {
       "id": 1,
       "parentId": 0,
-      "tagName": "产品类型",
+      "countryCode": "us",
+      "tagName": "Holiday",
       "isEnable": 1,
       "sort": 1,
       "imageId": null,
@@ -91,16 +151,8 @@
         {
           "id": 2,
           "parentId": 1,
-          "tagName": "奖牌",
-          "isEnable": null,
-          "sort": 1,
-          "imageId": null,
-          "children": []
-        },
-        {
-          "id": 3,
-          "parentId": 1,
-          "tagName": "奖牌123",
+          "countryCode": "us",
+          "tagName": "Christmas Sale",
           "isEnable": null,
           "sort": 1,
           "imageId": null,
@@ -111,32 +163,26 @@
   ],
   "message": "success"
 }</pre>
-</section>
-<section class="api-card" id="api-3">
-<h2>4. 标签筛选</h2>
-<div class="subline">ShowDoc 标题：关键字筛选标签 · <a href="http://47.112.98.200:4999/web/#/p/6a0a646eb7bca4e4900034979091d0cf" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/searchTags?keyword=奖牌</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td>ShowDoc 同时在 formdata 中写了 token，建议按统一 header 处理。</td></tr></tbody></table>
-<h3>Query 参数</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>keyword</td><td>是</td><td>string</td><td>奖牌</td><td>标签关键字。</td></tr></tbody></table>
-<h3>JSON Body 字段</h3><p class="muted">无</p>
+  </section>
 
-<h3>返回示例</h3><pre>{
+  <section class="api-card" id="api-3">
+    <h2>4. <span class="changed">标签关键字筛选</span></h2>
+    <div class="subline">ShowDoc 标题：关键字筛选标签 · <a class="changed" href="http://47.112.98.200:4999/web/#/p/0c614d3eaae4688a96def1ceb6e12dc0" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/searchTags?keyword=christmas&amp;countryCode=us</code></div>
+    <h3>Query 参数</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>keyword</td><td>是</td><td>string</td><td>christmas</td><td>标签关键字。</td></tr>
+      <tr class="changed-row"><td>countryCode</td><td>是</td><td>string</td><td>us</td><td>国家代码。</td></tr>
+    </tbody></table>
+    <h3>返回示例</h3><pre>{
   "success": true,
   "code": 200,
   "data": [
     {
       "id": 2,
       "parentId": 1,
-      "tagName": "奖牌",
-      "isEnable": null,
-      "sort": 1,
-      "imageId": null,
-      "children": []
-    },
-    {
-      "id": 3,
-      "parentId": 1,
-      "tagName": "奖牌123",
+      "countryCode": "us",
+      "tagName": "Christmas Sale",
       "isEnable": null,
       "sort": 1,
       "imageId": null,
@@ -145,144 +191,122 @@
   ],
   "message": "success"
 }</pre>
-</section>
-<section class="api-card" id="api-4">
-<h2>5. 图片新增/编辑/删除</h2>
-<div class="subline">ShowDoc 标题：图片增删改，tagIds 传二级标签 id · <a href="http://47.112.98.200:4999/web/#/p/81233b978618f7c6f3e2283e50d30cf0" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/imageUpdate</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td></td></tr></tbody></table>
-<h3>Query 参数</h3><p class="muted">无</p>
-<h3>JSON Body 字段</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>fullImageUrl</td><td>是</td><td>string</td><td>https://example.com/image/full/demo.jpg</td><td>原图地址。</td></tr>
-<tr><td>thumbnailUrl</td><td>是</td><td>string</td><td>https://example.com/image/thumb/demo.jpg</td><td>缩略图地址。</td></tr>
-<tr><td>tagIds</td><td>是</td><td>number[]</td><td>[2, 3]</td><td>二级标签 id 数组。</td></tr></tbody></table>
-<h3>请求示例</h3><pre>{
-  "fullImageUrl": "https://example.com/image/full/demo.jpg",
-  "thumbnailUrl": "https://example.com/image/thumb/demo.jpg",
-  "tagIds": [
-    2,
-    3
-  ]
+  </section>
+
+  <section class="api-card" id="api-4">
+    <h2>5. <span class="changed">图片编辑</span></h2>
+    <div class="subline">ShowDoc 标题：图片增删改，tagIds 传二级标签 id · <a class="changed" href="http://47.112.98.200:4999/web/#/p/5a756897b4e0fd5cdb97c71e38db2423" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/imageUpdate</code></div>
+    <h3>JSON Body 字段</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>fullImageUrl</td><td>是</td><td>string</td><td>https://cdn.example.com/full/demo.jpg</td><td>原图地址。</td></tr>
+      <tr class="changed-row"><td>thumbnailUrl</td><td>是</td><td>string</td><td>https://cdn.example.com/thumb/demo.jpg</td><td>缩略图地址。</td></tr>
+      <tr><td>tagIds</td><td>是</td><td>number[]</td><td>[2]</td><td>二级标签 id 数组。</td></tr>
+    </tbody></table>
+    <h3>请求示例</h3><pre>{
+  "fullImageUrl": "https://cdn.example.com/full/demo.jpg",
+  "thumbnailUrl": "https://cdn.example.com/thumb/demo.jpg",
+  "tagIds": [2]
 }</pre>
-<h3>返回示例</h3><pre>{
+    <h3>返回示例</h3><pre>{
   "success": true,
   "code": 200,
   "data": true,
   "message": "success"
 }</pre>
-</section>
-<section class="api-card" id="api-5">
-<h2>6. 单图片详情</h2>
-<div class="subline">ShowDoc 标题：图片详情 · <a href="http://47.112.98.200:4999/web/#/p/0f301faa9ff1b2ba1fb6893b077ceaf8" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/getImageById?id=1</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td></td></tr></tbody></table>
-<h3>Query 参数</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>id</td><td>是</td><td>string</td><td>1</td><td>图片 id。</td></tr></tbody></table>
-<h3>JSON Body 字段</h3><p class="muted">无</p>
+  </section>
 
-<h3>返回示例</h3><pre>{
-  "success": true,
-  "code": 200,
-  "data": {
-    "id": 1,
-    "fullImageUrl": "https://example.com/image/full/demo-new.jpg",
-    "thumbnailUrl": "https://example.com/image/thumb/demo-new.jpg",
-    "createTime": "2026-06-28T18:50:40.000+08:00",
-    "updateTime": "2026-06-28T18:53:54.000+08:00",
-    "tagIds": [
-      2,
-      3
-    ],
-    "tagList": [
-      {
-        "id": 2,
-        "parentId": 1,
-        "tagName": "奖牌",
-        "isEnable": null,
-        "sort": 1,
-        "imageId": 1,
-        "children": []
-      },
-      {
-        "id": 3,
-        "parentId": 1,
-        "tagName": "奖牌123",
-        "isEnable": null,
-        "sort": 1,
-        "imageId": 1,
-        "children": []
-      }
-    ]
-  },
-  "message": "success"
-}</pre>
-</section>
-<section class="api-card" id="api-6">
-<h2>7. 图片列表</h2>
-<div class="subline">ShowDoc 标题：图片列表 · 说明：传参为空时展示时间靠前的二十张图片 · <a href="http://47.112.98.200:4999/web/#/p/5252d84231597a3b4713277462933bcf" target="_blank">原文链接</a></div>
-<div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/imageList</code></div>
-<h3>Headers</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>token</td><td>是</td><td>string</td><td>已省略：登录 token</td><td></td></tr></tbody></table>
-<h3>Query 参数</h3><p class="muted">无</p>
-<h3>JSON Body 字段</h3><table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody><tr><td>tagId</td><td>是</td><td>string</td><td>null</td><td>二级标签 id；为空时返回时间靠前的 20 张图片。</td></tr></tbody></table>
-<h3>请求示例</h3><pre>{
+  <section class="api-card" id="api-5">
+    <h2>6. <span class="changed">图片列表</span></h2>
+    <div class="subline">ShowDoc 标题：图片列表 · 说明：传参为空时展示时间靠前的二十张图片 · <a class="changed" href="http://47.112.98.200:4999/web/#/p/d6a1ef33ab4f470b626f6ea28901c7b4" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/imageList</code></div>
+    <h3>JSON Body 字段</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>tagId</td><td>是</td><td>string</td><td>null</td><td>二级标签 id；为空时返回时间靠前的 20 张图片。</td></tr>
+    </tbody></table>
+    <h3>请求示例</h3><pre>{
   "tagId": null
 }</pre>
-<h3>返回示例</h3><pre>{
+    <h3>返回示例</h3><pre>{
   "success": true,
   "code": 200,
   "data": [
     {
       "id": 2,
-      "fullImageUrl": "https://example.com/image/full/demo-new.jpg",
-      "thumbnailUrl": "https://example.com/image/thumb/demo-new.jpg",
-      "createTime": "2026-06-28T19:24:20.000+08:00",
-      "updateTime": "2026-06-28T19:24:20.000+08:00",
-      "tagIds": [
-        2
-      ],
+      "fullImageUrl": "https://cdn.example.com/full/demo.jpg",
+      "thumbnailUrl": "https://cdn.example.com/thumb/demo.jpg",
+      "tagIds": [2],
       "tagList": [
         {
           "id": 2,
           "parentId": 1,
-          "tagName": "奖牌",
-          "isEnable": null,
-          "sort": 1,
-          "imageId": 2,
-          "children": []
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "fullImageUrl": "https://example.com/image/full/demo-new.jpg",
-      "thumbnailUrl": "https://example.com/image/thumb/demo-new.jpg",
-      "createTime": "2026-06-28T18:50:40.000+08:00",
-      "updateTime": "2026-06-28T18:53:54.000+08:00",
-      "tagIds": [
-        2,
-        3
-      ],
-      "tagList": [
-        {
-          "id": 2,
-          "parentId": 1,
-          "tagName": "奖牌",
-          "isEnable": null,
-          "sort": 1,
-          "imageId": 1,
-          "children": []
-        },
-        {
-          "id": 3,
-          "parentId": 1,
-          "tagName": "奖牌123",
-          "isEnable": null,
-          "sort": 1,
-          "imageId": 1,
-          "children": []
+          "countryCode": "us",
+          "tagName": "Christmas Sale",
+          "sort": 1
         }
       ]
     }
   ],
   "message": "success"
 }</pre>
-</section></main></body></html>
+  </section>
 
+  <section class="api-card" id="api-6">
+    <h2>7. <span class="changed">单图片详情</span></h2>
+    <div class="subline">ShowDoc 标题：图片详情 · <a class="changed" href="http://47.112.98.200:4999/web/#/p/f89a9fc396028ca8143d88cc987b461b" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">GET</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/getImageById?id=1</code></div>
+    <h3>Query 参数</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr class="changed-row"><td>id</td><td>是</td><td>string</td><td>1</td><td>图片 id。</td></tr>
+    </tbody></table>
+    <h3>返回示例</h3><pre>{
+  "success": true,
+  "code": 200,
+  "data": {
+    "id": 1,
+    "fullImageUrl": "https://cdn.example.com/full/demo-new.jpg",
+    "thumbnailUrl": "https://cdn.example.com/thumb/demo-new.jpg",
+    "tagIds": [2],
+    "tagList": [
+      {
+        "id": 2,
+        "parentId": 1,
+        "countryCode": "us",
+        "tagName": "Christmas Sale",
+        "sort": 1
+      }
+    ]
+  },
+  "message": "success"
+}</pre>
+  </section>
+
+  <section class="api-card" id="api-7">
+    <h2>8. 标签排序</h2>
+    <div class="subline">ShowDoc 标题：新接口 · <a href="http://47.112.98.200:4999/web/#/p/d08dddaf8eba725a7ae1e5428b40e0ab" target="_blank">原文链接</a></div>
+    <div class="endpoint"><span class="method">POST</span><code>https://products-api-dev.gs-souvenir.com/marketingTag/updateTagSort</code></div>
+    <h3>JSON Body 字段</h3>
+    <table><thead><tr><th>字段</th><th>必填</th><th>类型</th><th>示例值</th><th>备注</th></tr></thead><tbody>
+      <tr><td>[].id</td><td>是</td><td>string</td><td>2</td><td>标签 id。</td></tr>
+      <tr><td>[].sort</td><td>是</td><td>string</td><td>2</td><td>排序值。</td></tr>
+    </tbody></table>
+    <h3>请求示例</h3><pre>[
+  {
+    "id": "2",
+    "sort": "2"
+  },
+  {
+    "id": "3",
+    "sort": "1"
+  }
+]</pre>
+    <h3>返回示例</h3><pre>{
+  "success": true,
+  "code": 200,
+  "data": true,
+  "message": "success"
+}</pre>
+  </section>
+</main>
+</body>
+</html>
